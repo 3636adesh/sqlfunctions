@@ -1,0 +1,20 @@
+CREATE OR REPLACE FUNCTION fn_get_week(day integer) 
+   RETURNS integer 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+week integer = 0;
+BEGIN
+
+    IF ( day BETWEEN 1 and 7) then
+    week=1;
+    ELSIF  (day BETWEEN 8 and 14) then
+    week=2;
+    ELSIF (day BETWEEN 15 and 21) then
+    week=3;
+    ELSIF (day BETWEEN 22 and 28) then
+    week=4;
+    end if;
+    return week;
+END;
+$$

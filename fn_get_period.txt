@@ -1,0 +1,17 @@
+CREATE OR REPLACE function fn_get_period(frquency varchar,startDate timestamp) 
+   RETURNS varchar 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+  date varchar;
+  period varchar='';
+BEGIN
+      FOR i IN reverse frquency::integer-1..0 LOOP
+       select to_char(fn_get_interval_month_advance(i::varchar,startDate),'MONYYYY') into date;
+       period := date || ','|| period;
+     end loop;
+	  
+     return  regexp_replace(period, '.$', '');  
+    
+END;
+$$

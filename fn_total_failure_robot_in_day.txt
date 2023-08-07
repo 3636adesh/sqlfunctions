@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION fn_total_failure_robot_in_day() 
+   RETURNS varchar[] 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+count_failure integer=0;
+failure_array varchar[] ;
+days INTEGER;
+BEGIN
+     
+   
+    FOR i IN reverse 23..0 LOOP
+      count_failure :=  (SELECT COUNT(*)   FROM robot_log where build_status = 'FAILURE' and EXTRACT(DAY FROM created_date)=EXTRACT(DAY FROM CURRENT_TIMESTAMP)
+       and EXTRACT(HOUR FROM created_date) = i) ;
+       failure_array = i || '-' || count_failure||failure_array ;
+    END LOOP;
+    return  failure_array;
+END;
+$$

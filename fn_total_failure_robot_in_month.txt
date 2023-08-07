@@ -1,0 +1,22 @@
+CREATE OR REPLACE FUNCTION fn_total_failure_robot_in_month() 
+   RETURNS varchar[] 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+count_failure integer=0;
+failure_array varchar[];
+days INTEGER;
+BEGIN
+     SELECT 
+    date_part(
+        'days', 
+        (date_trunc('month',CURRENT_DATE) + interval '1 month - 1 day')
+        ) into days;
+   
+    FOR i IN reverse days..1 LOOP
+      count_failure :=  (SELECT COUNT(*)   FROM robot_log where build_status = 'FAILURE' and EXTRACT(DAY FROM created_date)=i);
+       failure_array = i || '-' || count_failure||failure_array ;
+    END LOOP;
+    return  failure_array;
+END;
+$$

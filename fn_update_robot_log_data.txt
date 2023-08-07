@@ -1,0 +1,21 @@
+CREATE OR REPLACE FUNCTION fn_update_robot_log_data() 
+RETURNS varchar 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+rec record;
+--status varchar;
+BEGIN
+    for rec in select rp.id,rl.build_status as rlstatus,rl.build_ex_time,rl.id as rlId from robot_report rp left join robot_log rl
+    on rp.job_id =rl.bot_name AND date_part('day', rl.build_ex_time) =rp.day
+    LOOP
+    if(rec.rlId is not null) then
+       UPDATE robot_report SET last_execution =rec.build_ex_time,status = rec.rlstatus  where id=rec.id;
+    else
+     UPDATE robot_report SET status='DID_NOT_RUN' where id=rec.id;
+    end if;
+    end loop;
+
+    return  'SUCCESS';
+END;
+$$

@@ -1,0 +1,32 @@
+create or replace function fn_create_timeslots()
+   returns varchar 
+   language plpgsql
+  as
+$$ 
+DECLARE
+rec record;
+myId integer;
+toTime varchar;
+fromTime varchar;
+BEGIN
+   
+   delete from time_slots;
+   
+   select bot_execution_time,frequency,working_hours into rec from job_configuration
+   where id = 100 ;
+   
+   FOR i IN 1..28 LOOP
+      FOR j IN 0..rec.working_hours-1 LOOP
+         FOR k IN 0..55 by rec.bot_execution_time  LOOP
+         select fn_get_id(i,j,k) into myId;
+         select fn_get_time(j,k) into fromTime;
+         k := k+rec.bot_execution_time;
+         select fn_get_time(j,k) into toTime;
+         INSERT INTO time_slots(id,day,from_time,to_time,allocated)
+         VALUES (myId,i,fromTime,toTime,false);
+         END LOOP;
+      END LOOP;
+   END LOOP;
+  return 'SUCCESS';
+END;
+ $$

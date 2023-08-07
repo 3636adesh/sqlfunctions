@@ -1,0 +1,38 @@
+CREATE OR REPLACE FUNCTION fn_insert_robot_report() 
+RETURNS varchar 
+LANGUAGE PLPGSQL AS $$
+DECLARE
+rec_robot record;
+rec record;
+year INTEGER;
+month INTEGER;
+robot_report_id varchar;
+robot_report_id_array varchar[];
+day_arry INTEGER[];
+BEGIN
+
+
+    for  rec_robot in SELECT * FROM robot where schedule IS TRUE
+    LOOP
+    if( rec_robot.id is not null ) then
+          for  rec in SELECT * FROM time_slots where job_id =rec_robot.id
+          LOOP
+            robot_report_id := ( SELECT EXTRACT(YEAR FROM CURRENT_TIMESTAMP)|| '-'|| EXTRACT(MONTH FROM CURRENT_TIMESTAMP)  ||'-'||rec.day ||'-'||rec_robot.job_id );
+            robot_report_id_array =  robot_report_id ||robot_report_id_array;
+            day_arry = rec.day||day_arry;
+         END LOOP;
+         FOR i IN 1 .. array_upper(robot_report_id_array, 1)  -- "i" is the index
+         LOOP
+         if(SELECT COUNT(*)>0 FROM robot_report where id = robot_report_id_array[i]) then
+         else
+         INSERT INTO robot_report(id,job_id,day,status,week)
+         VALUES (robot_report_id_array[i],rec_robot.id,day_arry[i],'DID_NOT_RUN',fn_get_week(day_arry[i]));
+         END IF;
+        END LOOP;
+    else
+    end if;
+    END LOOP;
+
+    return  'SUCCESS';
+END;
+$$

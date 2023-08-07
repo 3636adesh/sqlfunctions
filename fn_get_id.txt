@@ -1,0 +1,36 @@
+CREATE OR REPLACE FUNCTION fn_get_id(day INTEGER,hr INTEGER,fromTime INTEGER) 
+   RETURNS integer 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+strhr varchar;
+reqTime varchar;
+id integer;
+BEGIN
+  if(fromTime = 0) then
+    if(hr<10) then
+      strhr = '0'|| hr;
+    else
+      strhr = hr;
+    END IF;  
+      reqTime = strhr || fromTime || '0';
+  ELSEIF (fromTime = 5) then 
+    if(hr<10) then 
+      strhr = '0'|| hr;
+    else
+      strhr = hr;
+    END IF;  
+      reqTime = strhr || '0' || fromTime ;
+   ELSE
+   if(hr<10) then
+      strhr = '0'|| hr;
+    else
+      strhr = hr;
+    END IF;  
+      reqTime = strhr || fromTime ;   
+   END IF;
+  id = day || reqTime;
+  return id;
+END;
+$$
+

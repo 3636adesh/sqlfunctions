@@ -1,0 +1,51 @@
+CREATE OR REPLACE function fn_calculate_missing_bills(accountNo varchar,assetCode varchar,vendorId varchar) 
+   RETURNS varchar 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+date_pointer timestamp;
+default_date timestamp;
+plusMonth timestamp;
+startDate timestamp;
+isPresent Boolean = true;
+returnstr varchar;
+periodstr varchar;
+rec record;
+BEGIN
+   SELECT asset_code,account_number,vendor_id,start_date,frequency,lmd_checked,asset_account_id
+   into rec
+   from asset_account  
+   where account_number = accountNo and asset_code = assetCode and vendor_id=vendorId ;
+
+   SELECT fn_get_interval_month(ap.value) INTO default_date from app_config ap
+   where ap.config ='START_MONTH' and  ap.value is not null;
+   date_pointer = rec.lmd_checked ;
+    if( rec.start_date > default_date ) then
+       date_pointer := rec.start_date;
+    else
+       date_pointer :=default_date;
+    end if;
+
+    SELECT date_trunc('month', date_pointer) + interval '1 month'  into startDate;
+
+    while(isPresent) loop
+      select fn_get_interval_month_advance(rec.frequency,startDate) into plusMonth;
+      
+      if plusMonth < CURRENT_TIMESTAMP then 
+         if (fn_is_bills_present(rec.vendor_id,rec.asset_code,rec.account_number,plusMonth,startDate)) then 
+         ELSE
+         periodstr :=fn_get_period(rec.frequency,startDate);
+           INSERT INTO missing_bills(id,asset_code,vendor_id,account_no,period)
+           VALUES (rec.asset_code||rec.account_number||rec.vendor_id||fn_get_period(rec.frequency,startDate),rec.asset_code,rec.vendor_id,rec.account_number,fn_get_period(rec.frequency,startDate));
+         end if;
+         startDate := plusMonth;
+         update asset_account set lmd_checked = CURRENT_TIMESTAMP 
+         where account_number = accountNo and asset_code = assetCode and vendor_id=vendorId ; 
+      else 
+      isPresent=false;
+      end if;
+
+    end loop;
+    return  'SUCCESS';
+END;
+$$

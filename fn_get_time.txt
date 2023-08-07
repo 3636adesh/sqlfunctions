@@ -1,0 +1,34 @@
+CREATE OR REPLACE FUNCTION fn_get_time(hr INTEGER,reqTime INTEGER) 
+   RETURNS varchar 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+strhr varchar;
+timestr varchar;
+BEGIN
+  if(reqTime = 0) then
+    if(hr<10) then
+      strhr = '0'|| hr;
+    else
+      strhr = hr;
+    END IF;  
+     timestr = strhr || '_' || reqTime || '0';
+  ELSEIF (reqTime < 9) then 
+     if(hr<10) then
+      strhr = '0'|| hr;
+    else
+      strhr = hr;
+    END IF;  
+     timestr = strhr || '_' || '0' || reqTime ;
+   ELSE
+       if(hr<10) then
+      strhr = '0'|| hr;
+    else
+      strhr = hr;
+    END IF;  
+     timestr = strhr || '_'  || reqTime ;  
+   END IF;
+  return timestr;
+END;
+$$
+

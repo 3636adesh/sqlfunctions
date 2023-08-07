@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION fn_total_succes_robot_in_day() 
+   RETURNS varchar[] 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+count_success integer=0;
+success_array varchar[] ;
+days INTEGER;
+BEGIN
+     
+   
+    FOR i IN reverse 23..0 LOOP
+      count_success :=  (SELECT COUNT(*)   FROM robot_log where build_status = 'SUCCESS' and EXTRACT(DAY FROM created_date)=EXTRACT(DAY FROM CURRENT_TIMESTAMP)
+       and EXTRACT(HOUR FROM created_date) = i) ;
+       success_array = i || '-' || count_success ||success_array ;
+    END LOOP;
+    return  success_array;
+END;
+$$

@@ -1,0 +1,12 @@
+CREATE OR REPLACE function fn_get_interval_month_advance(frequency varchar,startdate timestamp) 
+   RETURNS timestamp 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+date_time timestamp;
+BEGIN
+  SELECT frequency || ' ' || 'MONTH'  into frequency;
+   SELECT CURRENT_TIMESTAMP - frequency::interval INTO date_time;
+   Return date_time;
+END;
+$$

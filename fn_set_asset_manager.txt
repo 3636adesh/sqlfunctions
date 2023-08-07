@@ -1,0 +1,18 @@
+CREATE OR REPLACE FUNCTION fn_set_asset_manager(manager_id INTEGER,action Boolean) 
+   RETURNS varchar 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+rec record;
+BEGIN
+    if(action) then 
+    for rec in select id from asset 
+    LOOP
+      INSERT into asset_managers_ids (asset_id,managers_ids) VALUES(rec.id,manager_id);
+    END LOOP;
+    else 
+       DELETE FROM asset_managers_ids WHERE managers_ids = manager_id ;
+    end if;
+    return  'SUCCESS';
+END;
+$$

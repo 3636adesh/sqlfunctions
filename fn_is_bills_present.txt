@@ -1,0 +1,13 @@
+
+ CREATE OR REPLACE function fn_is_bills_present(vendorId varchar,assetCode varchar,accountNumber varchar,fromDate timestamp,toDate timestamp) 
+   RETURNS Boolean 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+isPresent Boolean ;
+BEGIN
+   select count(b)>0 into isPresent from bill_document b where  b.vendor_id =vendorId and b.asset_code =assetCode 
+			 and b.account_number =accountNumber and ( b.bill_month > toDate and b.bill_month <=fromDate ) ;
+     return isPresent; 
+END;
+$$
