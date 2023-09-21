@@ -1,0 +1,11 @@
+select generate_series(1,6);
+select generate_series(1,6,2);
+select generate_series(0.1,1,0.1);
+select generate_series('2021-01-01'::timestamp,'2021-12-01'::timestamp,'1 month');
+select generate_series('2021-01-01'::date,'2021-12-01'::date,'1 month');
+with series as (select generate_series('2021-01-01'::date,'2021-12-01'::date,'1 month')) select series.generate_series:: date from series;
+
+-------------------------------------------------------------------------------------------------------------------- 
+select lives_on_campus,count(*) filter(where age between 10 and 20)  from students group by lives_on_campus;
+select lives_on_campus,count(*) filter(where age between 10 and 20),count(*) filter (where age between 20 and 30)  
+from students group by lives_on_campus;
