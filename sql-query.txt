@@ -9,3 +9,6 @@ with series as (select generate_series('2021-01-01'::date,'2021-12-01'::date,'1 
 select lives_on_campus,count(*) filter(where age between 10 and 20)  from students group by lives_on_campus;
 select lives_on_campus,count(*) filter(where age between 10 and 20),count(*) filter (where age between 20 and 30)  
 from students group by lives_on_campus;
+
+--------------------------------------------------------------------------------------------------------------------
+drop table if exists students cascade ;
